@@ -1,20 +1,27 @@
 package com.bluepal.filter;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtValidationFilter extends AbstractGatewayFilterFactory<JwtValidationFilter.Config> {
 
-    private final WebClient.Builder webClientBuilder;
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public JwtValidationFilter(WebClient.Builder webClientBuilder) {
+    public JwtValidationFilter() {
         super(Config.class);
-        this.webClientBuilder = webClientBuilder;
     }
 
     @Override
@@ -22,40 +29,37 @@ public class JwtValidationFilter extends AbstractGatewayFilterFactory<JwtValidat
         return (exchange, chain) -> {
             String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return chain.filter(exchange);
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
             }
 
             String token = authHeader.substring(7);
 
-            return webClientBuilder.build()
-                    .post()
-                    .uri("http://auth-user-service/api/auth/validate?token=" + token)
-                    .retrieve()
-                    .bodyToMono(ValidationResponse.class)
-                    .flatMap(response -> {
-                        exchange.getRequest().mutate().header("X-Username", response.getUsername());
-                        return chain.filter(exchange);
-                    })
-                    .onErrorResume(e -> {
-                        // Handle validation error
-                        return Mono.error(new Exception("Invalid token"));
-                    });
+            try {
+                Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+                String username = claims.getSubject();
+                String role = claims.get("role", String.class);
+                exchange.getRequest().mutate()
+                        .header("X-Username", username)
+                        .header("X-Role", role)
+                        .build();
+            } catch (Exception e) {
+                return onError(exchange, HttpStatus.UNAUTHORIZED);
+            }
+
+            return chain.filter(exchange);
         };
+    }
+
+    private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status) {
+        exchange.getResponse().setStatusCode(status);
+        return exchange.getResponse().setComplete();
     }
 
     public static class Config {
         // Put the configuration properties here
     }
 
-    private static class ValidationResponse {
-        private String username;
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(String username) {
-            this.username = username;
-        }
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 }

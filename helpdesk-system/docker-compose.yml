@@ -48,6 +48,8 @@ services:
       - "8080:8080"
     depends_on:
       - discovery-server
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
 
   auth-user-service:
     build: ./auth-user-service
@@ -58,10 +60,10 @@ services:
       - discovery-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth_db
-      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      JWT_SECRET: your-super-secret-key-that-is-at-least-256-bits-long-so-it-can-be-used-with-hs256
+      JWT_SECRET: ${JWT_SECRET}
 
   ticket-service:
     build: ./ticket-service
@@ -73,7 +75,7 @@ services:
       - kafka
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ticket_db
-      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:9092
@@ -88,7 +90,7 @@ services:
       - kafka
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/assign_db
-      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:9092
@@ -103,12 +105,12 @@ services:
       - kafka
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/analytics_db
-      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:9092
-      MAIL_USERNAME:
-      MAIL_PASSWORD:
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
 
 volumes:
   mysql-data:

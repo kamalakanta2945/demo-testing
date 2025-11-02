@@ -4,6 +4,7 @@ import com.bluepal.dto.UserResponse;
 import com.bluepal.entity.User;
 import com.bluepal.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +26,8 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getProfile() {
-        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
         User user = userRepository.findByUsername(username).get();
         return ResponseEntity.ok(new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getRole()));
     }

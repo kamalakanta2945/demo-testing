@@ -15,3 +15,7 @@ export const getTicketById = (id) => {
 export const addReply = (id, replyData) => {
     return api.post(`/tickets/${id}/replies`, replyData);
 };
+
+export const getReplies = (id) => {
+    return api.get(`/tickets/${id}/replies`);
+};

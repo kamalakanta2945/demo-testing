@@ -12,3 +12,5 @@ logs/
 
 # Node
 node_modules/
+.vite/
+npm_output.log

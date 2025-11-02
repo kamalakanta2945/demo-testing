@@ -1,15 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createTicket } from '../../services/ticket';
 
 const TicketForm = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [department, setDepartment] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
         createTicket({ title, description, department }).then(() => {
-            // Refresh the ticket list
+            navigate('/dashboard');
         });
     };
 

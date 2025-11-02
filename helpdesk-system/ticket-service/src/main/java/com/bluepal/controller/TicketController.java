@@ -1,6 +1,7 @@
 package com.bluepal.controller;
 
 import com.bluepal.dto.ReplyRequest;
+import com.bluepal.dto.ReplyResponse;
 import com.bluepal.dto.TicketCreateRequest;
 import com.bluepal.dto.TicketResponse;
 import com.bluepal.service.TicketService;
@@ -45,5 +46,10 @@ public class TicketController {
     public ResponseEntity<?> assignTicket(@PathVariable Long id, @PathVariable String agent) {
         ticketService.assignTicket(id, agent);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/replies")
+    public ResponseEntity<List<ReplyResponse>> getReplies(@PathVariable Long id) {
+        return ResponseEntity.ok(ticketService.getReplies(id));
     }
 }

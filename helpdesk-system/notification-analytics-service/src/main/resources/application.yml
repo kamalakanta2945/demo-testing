@@ -35,3 +35,6 @@ eureka:
 app:
   kafka:
     topic: ticket-events
+
+auth-user-service:
+  url: http://auth-user-service
