@@ -1,0 +1,14 @@
+# Maven
+target/
+
+# IDE
+.idea/
+*.iml
+*.iws
+
+# Logs
+logs/
+*.log
+
+# Node
+node_modules/
