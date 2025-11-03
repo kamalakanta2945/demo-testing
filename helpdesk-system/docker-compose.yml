@@ -36,14 +36,14 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   discovery-server:
-    build: ./discovery-server
+    build: ./backend/discovery-server
     ports:
       - "8761:8761"
     depends_on:
       - mysql
 
   api-gateway:
-    build: ./api-gateway
+    build: ./backend/api-gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -52,7 +52,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
 
   auth-user-service:
-    build: ./auth-user-service
+    build: ./backend/auth-user-service
     ports:
       - "8081:8081"
     depends_on:
@@ -66,7 +66,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
 
   ticket-service:
-    build: ./ticket-service
+    build: ./backend/ticket-service
     ports:
       - "8082:8082"
     depends_on:
@@ -81,7 +81,7 @@ services:
       SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:9092
 
   assignment-service:
-    build: ./assignment-service
+    build: ./backend/assignment-service
     ports:
       - "8083:8083"
     depends_on:
@@ -96,7 +96,7 @@ services:
       SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:9092
 
   notification-analytics-service:
-    build: ./notification-analytics-service
+    build: ./backend/notification-analytics-service
     ports:
       - "8084:8084"
     depends_on:

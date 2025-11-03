@@ -12,10 +12,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -24,20 +26,22 @@ import java.util.concurrent.TimeUnit;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
     public static MockWebServer mockBackEnd;
 
-    @Autowired
     private NotificationService notificationService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @MockBean
+    @Mock
     private EmailService emailService;
+
+    @Mock
+    private WebClient.Builder webClientBuilder;
 
     private final CountDownLatch latch = new CountDownLatch(1);
 
@@ -55,7 +59,6 @@ class NotificationServiceTest {
     @BeforeEach
     void initialize() {
         String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-        WebClient.Builder webClientBuilder = WebClient.builder().baseUrl(baseUrl);
         notificationService = new NotificationService(emailService, webClientBuilder);
 
         doAnswer(invocation -> {
@@ -69,6 +72,17 @@ class NotificationServiceTest {
         UserResponse user = new UserResponse(1L, "testuser", "test@example.com", "ROLE_USER");
         mockBackEnd.enqueue(new MockResponse().setBody(objectMapper.writeValueAsString(user))
                 .addHeader("Content-Type", "application/json"));
+
+        WebClient webClient = Mockito.mock(WebClient.class);
+        WebClient.RequestHeadersUriSpec requestHeadersUriSpec = Mockito.mock(WebClient.RequestHeadersUriSpec.class);
+        WebClient.ResponseSpec responseSpec = Mockito.mock(WebClient.ResponseSpec.class);
+
+        when(webClientBuilder.build()).thenReturn(webClient);
+        when(webClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(Mockito.anyString())).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(UserResponse.class)).thenReturn(Mono.just(user));
+
 
         TicketResponse ticket = new TicketResponse();
         ticket.setId(1L);
