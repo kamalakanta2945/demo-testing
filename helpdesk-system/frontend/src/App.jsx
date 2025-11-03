@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
 import Login from './components/auth/Login';
@@ -10,6 +11,7 @@ import TicketForm from './components/user/TicketForm';
 import TicketDetail from './components/user/TicketDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 import TicketAssignment from './components/admin/TicketAssignment';
+import { Box, CssBaseline } from '@mui/material';
 import './App.css';
 
 const AppRoutes = () => {
@@ -32,15 +34,18 @@ const AppRoutes = () => {
 function App() {
     return (
         <AuthProvider>
-            <Router>
-                <Navbar />
-                <div style={{ display: 'flex' }}>
-                    <Sidebar />
-                    <main style={{ flexGrow: 1, padding: '20px' }}>
-                        <AppRoutes />
-                    </main>
-                </div>
-            </Router>
+            <NotificationProvider>
+                <Router>
+                    <Box sx={{ display: 'flex' }}>
+                        <CssBaseline />
+                        <Navbar />
+                        <Sidebar />
+                        <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
+                            <AppRoutes />
+                        </Box>
+                    </Box>
+                </Router>
+            </NotificationProvider>
         </AuthProvider>
     );
 }

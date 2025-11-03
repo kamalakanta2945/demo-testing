@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTicket } from '../../services/ticket';
+import { Button, TextField, Typography, Container, Paper } from '@mui/material';
 
 const TicketForm = () => {
     const [title, setTitle] = useState('');
@@ -16,27 +17,60 @@ const TicketForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Create a Ticket</h2>
-            <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-            />
-            <textarea
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="Department"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-            />
-            <button type="submit">Create</button>
-        </form>
+        <Container component="main" maxWidth="sm">
+            <Paper elevation={3} style={{ padding: 20 }}>
+                <Typography component="h1" variant="h5">
+                    Create a Ticket
+                </Typography>
+                <form onSubmit={handleSubmit} style={{ marginTop: 1 }}>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="title"
+                        label="Title"
+                        name="title"
+                        autoFocus
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="department"
+                        label="Department"
+                        name="department"
+                        value={department}
+                        onChange={(e) => setDepartment(e.target.value)}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="description"
+                        label="Description"
+                        id="description"
+                        multiline
+                        rows={4}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        style={{ marginTop: 2 }}
+                    >
+                        Create
+                    </Button>
+                </form>
+            </Paper>
+        </Container>
     );
 };
 
